@@ -1,0 +1,184 @@
+{
+    "train": [
+        {
+            "image": "patient0002.nii.gz",
+            "label": "patient0002_gt.nii.gz"
+        },
+        {
+            "image": "patient0003.nii.gz",
+            "label": "patient0003_gt.nii.gz"
+        },
+        {
+            "image": "patient0004.nii.gz",
+            "label": "patient0004_gt.nii.gz"
+        },
+        {
+            "image": "patient0006.nii.gz",
+            "label": "patient0006_gt.nii.gz"
+        },
+        {
+            "image": "patient0007.nii.gz",
+            "label": "patient0007_gt.nii.gz"
+        },
+        {
+            "image": "patient0008.nii.gz",
+            "label": "patient0008_gt.nii.gz"
+        },
+        {
+            "image": "patient0009.nii.gz",
+            "label": "patient0009_gt.nii.gz"
+        },
+        {
+            "image": "patient0010.nii.gz",
+            "label": "patient0010_gt.nii.gz"
+        },
+        {
+            "image": "patient0011.nii.gz",
+            "label": "patient0011_gt.nii.gz"
+        },
+        {
+            "image": "patient0012.nii.gz",
+            "label": "patient0012_gt.nii.gz"
+        },
+        {
+            "image": "patient0014.nii.gz",
+            "label": "patient0014_gt.nii.gz"
+        },
+        {
+            "image": "patient0015.nii.gz",
+            "label": "patient0015_gt.nii.gz"
+        },
+        {
+            "image": "patient0016.nii.gz",
+            "label": "patient0016_gt.nii.gz"
+        },
+        {
+            "image": "patient0018.nii.gz",
+            "label": "patient0018_gt.nii.gz"
+        },
+        {
+            "image": "patient0019.nii.gz",
+            "label": "patient0019_gt.nii.gz"
+        },
+        {
+            "image": "patient0020.nii.gz",
+            "label": "patient0020_gt.nii.gz"
+        },
+        {
+            "image": "patient0021.nii.gz",
+            "label": "patient0021_gt.nii.gz"
+        },
+        {
+            "image": "patient0022.nii.gz",
+            "label": "patient0022_gt.nii.gz"
+        },
+        {
+            "image": "patient0023.nii.gz",
+            "label": "patient0023_gt.nii.gz"
+        },
+        {
+            "image": "patient0024.nii.gz",
+            "label": "patient0024_gt.nii.gz"
+        },
+        {
+            "image": "patient0026.nii.gz",
+            "label": "patient0026_gt.nii.gz"
+        },
+        {
+            "image": "patient0027.nii.gz",
+            "label": "patient0027_gt.nii.gz"
+        },
+        {
+            "image": "patient0028.nii.gz",
+            "label": "patient0028_gt.nii.gz"
+        },
+        {
+            "image": "patient0030.nii.gz",
+            "label": "patient0030_gt.nii.gz"
+        }
+    ],
+    "test": [
+        {
+            "image": "patient0031.nii.gz",
+            "label": "patient0031_gt.nii.gz"
+        },
+        {
+            "image": "patient0032.nii.gz",
+            "label": "patient0032_gt.nii.gz"
+        },
+        {
+            "image": "patient0033.nii.gz",
+            "label": "patient0033_gt.nii.gz"
+        },
+        {
+            "image": "patient0034.nii.gz",
+            "label": "patient0034_gt.nii.gz"
+        },
+        {
+            "image": "patient0035.nii.gz",
+            "label": "patient0035_gt.nii.gz"
+        },
+        {
+            "image": "patient0036.nii.gz",
+            "label": "patient0036_gt.nii.gz"
+        },
+        {
+            "image": "patient0037.nii.gz",
+            "label": "patient0037_gt.nii.gz"
+        },
+        {
+            "image": "patient0038.nii.gz",
+            "label": "patient0038_gt.nii.gz"
+        },
+        {
+            "image": "patient0039.nii.gz",
+            "label": "patient0039_gt.nii.gz"
+        },
+        {
+            "image": "patient0040.nii.gz",
+            "label": "patient0040_gt.nii.gz"
+        }
+    ],
+    "val": [
+        {
+            "image": "patient0041.nii.gz",
+            "label": "patient0041_gt.nii.gz"
+        },
+        {
+            "image": "patient0042.nii.gz",
+            "label": "patient0042_gt.nii.gz"
+        },
+        {
+            "image": "patient0043.nii.gz",
+            "label": "patient0043_gt.nii.gz"
+        },
+        {
+            "image": "patient0044.nii.gz",
+            "label": "patient0044_gt.nii.gz"
+        },
+        {
+            "image": "patient0045.nii.gz",
+            "label": "patient0045_gt.nii.gz"
+        },
+        {
+            "image": "patient0046.nii.gz",
+            "label": "patient0046_gt.nii.gz"
+        },
+        {
+            "image": "patient0047.nii.gz",
+            "label": "patient0047_gt.nii.gz"
+        },
+        {
+            "image": "patient0048.nii.gz",
+            "label": "patient0048_gt.nii.gz"
+        },
+        {
+            "image": "patient0049.nii.gz",
+            "label": "patient0049_gt.nii.gz"
+        },
+        {
+            "image": "patient0050.nii.gz",
+            "label": "patient0050_gt.nii.gz"
+        }
+    ]
+}

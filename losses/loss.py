@@ -11,7 +11,6 @@ def loss_func(loss_name):
         # the loss for CoTr deep supervision
         dc_loss = DiceCELoss(to_onehot_y=True, softmax=True)
         return CoTrLoss(dc_loss)
-    
     else:
         raise ValueError(f'not found loss name: {loss_name}')
 

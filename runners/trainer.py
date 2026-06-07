@@ -51,6 +51,7 @@ def train_epoch(loader, model, optimizer, loss_func, writer, global_step, epoch,
         logit_map = model(x)
         loss = loss_func(logit_map, y)
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)  # 4/14 新增
         epoch_loss += loss.item()
         optimizer.step()
         optimizer.zero_grad()

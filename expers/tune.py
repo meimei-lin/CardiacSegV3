@@ -12,9 +12,9 @@ from torch.utils.tensorboard import SummaryWriter
 import ray
 from ray import air, tune
 from ray.tune import CLIReporter
-
+import torch.nn as nn
 from monai.inferers import sliding_window_inference
-from monai.losses import DiceCELoss, DiceFocalLoss, DiceLoss
+from monai.losses import DiceCELoss, DiceFocalLoss, DiceLoss, FocalLoss
 from monai.metrics import DiceMetric
 from monai.transforms import (
     AsDiscrete,
@@ -33,7 +33,11 @@ from runners.tester import run_testing
 from runners.inferer import run_infering
 from networks.network import network
 from optimizers.optimizer import Optimizer, LR_Scheduler
+from losses.swinunetr_loss import SwinUnetrLoss
+from monai.transforms import KeepLargestConnectedComponent
 
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
+sys.path.insert(0, ".")
 
 def main(config, args=None):
     if args.tune_mode == 'transform':
@@ -87,7 +91,31 @@ def main_worker(args):
     # model
     model = network(args.model_name, args)
     
+    # class WITNETLoss(nn.Module):
+    #     def __init__(self):
+    #         super().__init__()
+    #         self.dice_ce = DiceCELoss(to_onehot_y=True, softmax=True, include_background=False, batch=True)
+    #         self.focal = FocalLoss(to_onehot_y=True, gamma=2.0) # 強迫關注 AOV
+    #         # self.hd = HausdorffDTLoss(to_onehot_y=True, softmax=True, include_background=False) # 視情況開啟
+
+    #     def forward(self, pred, target):
+    #         # 針對 Deep Supervision 的 List 輸出做處理
+    #         if isinstance(pred, list):
+    #             loss = 0
+    #             weights = [1.0, 0.5, 0.5] # 主輸出權重 1.0，深層監督 0.5
+    #             for i, p in enumerate(pred):
+    #                 if i < len(weights):
+    #                     # 核心公式: DiceCE + 2.0 * Focal
+    #                     term_loss = self.dice_ce(p, target) + 2.0 * self.focal(p, target)
+    #                     loss += weights[i] * term_loss
+    #             return loss
+    #         else:
+    #             return self.dice_ce(pred, target) + 2.0 * self.focal(pred, target)
+
     # loss
+    # if args.model_name == 'witnet': 
+    #     print('Using WITNET Compound Loss (Dice + CE + Focal)')
+    #     dice_loss = WITNETLoss()
     if args.loss == 'dice_focal_loss':
         print('loss: dice focal loss')
         dice_loss = DiceFocalLoss(
@@ -97,8 +125,19 @@ def main_worker(args):
             lambda_dice=args.lambda_dice,
             lambda_focal=args.lambda_focal
         )
+    elif args.loss == 'swinunetr_loss':
+        dice_loss =  SwinUnetrLoss(batch_size=args.batch_size, args=args)
     else:
         print('loss: dice ce loss')
+        # weights = [1.0] * args.out_channels
+        # if args.out_channels > 2:
+        #     weights[2] = 1.5
+        # class_weights = torch.tensor(weights).to(args.device)
+        # dice_loss = DiceCELoss(
+        #     to_onehot_y=True, 
+        #     softmax=True,
+        #     ce_weight=class_weights  
+        # )
         dice_loss = DiceCELoss(to_onehot_y=True, softmax=True)
         # print('loss: dice loss')
         # dice_loss = DiceLoss(to_onehot_y=True, softmax=True)
@@ -200,7 +239,12 @@ def main_worker(args):
             
     # inferer
     post_label = AsDiscrete(to_onehot=args.out_channels)
-    post_pred = AsDiscrete(argmax=True, to_onehot=args.out_channels)
+    #post_pred = AsDiscrete(argmax=True, to_onehot=args.out_channels)
+    # ---修改---
+    post_pred = Compose([
+    AsDiscrete(argmax=True, to_onehot=args.out_channels),
+    KeepLargestConnectedComponent(applied_labels=[1, 2]) # 只保留心肌(1)和瓣膜(2)的最大區塊
+    ])
     dice_acc = DiceMetric(include_background=True, reduction="mean", get_not_nans=False)
     model_inferer = partial(
         sliding_window_inference,
@@ -263,10 +307,16 @@ def main_worker(args):
         pids = get_pids_by_data_dicts(test_dicts)
         inf_dc_vals = []
         inf_hd95_vals = []
+        inf_iou_vals =[]
+        inf_assd_vals = []
+        inf_surfdice_vals = []
         inf_sensitivity_vals = []
         inf_specificity_vals = []
         tt_dc_vals = []
         tt_hd95_vals = []
+        tt_iou_vals = []
+        tt_assd_vals = []
+        tt_surfdice_vals = []
         inf_times = []
         for data_dict in test_dicts:
             print('infer data:', data_dict)
@@ -280,10 +330,29 @@ def main_worker(args):
                 post_transform,
                 args
             )
+            # --- [NEW] 修正 GPU Tensor 錯誤 + 修正維度形狀錯誤 ---
+            for k, v in ret_dict.items():
+                # 1. 如果是 Tensor，先轉成 Numpy
+                if isinstance(v, torch.Tensor):
+                    v = v.detach().cpu().numpy()
+                
+                # 2. 處理形狀問題：如果是 (1, C) 這種形狀，變成 (C,)
+                # 這樣 Pandas 才能正確讀取成 "3個欄位" 而不是 "1個Batch包含3個數值"
+                if hasattr(v, 'shape') and v.ndim == 2 and v.shape[0] == 1:
+                    v = v[0] 
+                
+                ret_dict[k] = v
+            # ---------------------------------------------------
             tt_dc_vals.append(ret_dict['tta_dc'])
             tt_hd95_vals.append(ret_dict['tta_hd'])
+            tt_iou_vals.append(ret_dict['tta_iou'])
+            tt_assd_vals.append(ret_dict['tta_assd'])
+            tt_surfdice_vals.append(ret_dict['tta_surfdice'])
             inf_dc_vals.append(ret_dict['ori_dc'])
             inf_hd95_vals.append(ret_dict['ori_hd'])
+            inf_iou_vals.append(ret_dict['ori_iou'])
+            inf_assd_vals.append(ret_dict['ori_assd'])
+            inf_surfdice_vals.append(ret_dict['ori_surfdice'])
             inf_sensitivity_vals.append(ret_dict['ori_sensitivity'])
             inf_specificity_vals.append(ret_dict['ori_specificity'])
             inf_times.append(ret_dict['inf_time'])
@@ -299,6 +368,18 @@ def main_worker(args):
             tt_hd95_vals,
             columns=[f'tt_hd95{n}' for n in label_names]
         )
+        eval_tt_iou_val_df = pd.DataFrame(
+            tt_iou_vals,
+            columns=[f'tt_iou{n}' for n in label_names]
+        )
+        eval_tt_assd_val_df = pd.DataFrame(
+            tt_assd_vals,
+            columns=[f'tt_assd{n}' for n in label_names]
+        )
+        eval_tt_surfdice_val_df = pd.DataFrame(
+            tt_surfdice_vals,
+            columns=[f'tt_surfdice{n}' for n in label_names]
+        )
         
         
         eval_inf_dice_val_df = pd.DataFrame(
@@ -308,6 +389,18 @@ def main_worker(args):
         eval_inf_hd95_val_df = pd.DataFrame(
             inf_hd95_vals,
             columns=[f'inf_hd95{n}' for n in label_names]
+        )
+        eval_inf_iou_val_df = pd.DataFrame(
+            inf_iou_vals,
+            columns=[f'inf_iou{n}' for n in label_names]
+        )
+        eval_inf_assd_val_df = pd.DataFrame(
+            inf_assd_vals,
+            columns=[f'inf_assd{n}' for n in label_names]
+        )
+        eval_inf_surfdice_val_df = pd.DataFrame(
+            inf_surfdice_vals,
+            columns=[f'inf_surfdice{n}' for n in label_names]
         )
         eval_inf_sensitivity_val_df = pd.DataFrame(
             inf_sensitivity_vals,
@@ -330,15 +423,21 @@ def main_worker(args):
         
         avg_tt_dice = eval_tt_dice_val_df.T.mean().mean()
         avg_tt_hd95 =  eval_tt_hd95_val_df.T.mean().mean()
+        avg_tt_iou =  eval_tt_iou_val_df.T.mean().mean()
+        avg_tt_assd =  eval_tt_assd_val_df.T.mean().mean()
+        avg_tt_surfdice =  eval_tt_surfdice_val_df.T.mean().mean()
         avg_inf_dice = eval_inf_dice_val_df.T.mean().mean()
         avg_inf_hd95 =  eval_inf_hd95_val_df.T.mean().mean()
+        avg_inf_iou =  eval_inf_iou_val_df.T.mean().mean()
+        avg_inf_assd =  eval_inf_assd_val_df.T.mean().mean()
+        avg_inf_surfdice =  eval_inf_surfdice_val_df.T.mean().mean()
         avg_inf_sensitivity =  eval_inf_sensitivity_val_df.T.mean().mean()
         avg_inf_specificity =  eval_inf_specificity_val_df.T.mean().mean()
         avg_inf_time = eval_inf_time_df.T.mean().mean()
 
         eval_df = pd.concat([
-            pid_df, eval_tt_dice_val_df, eval_tt_hd95_val_df,
-            eval_inf_dice_val_df, eval_inf_hd95_val_df,
+            pid_df, eval_tt_dice_val_df, eval_tt_hd95_val_df,eval_tt_iou_val_df, eval_tt_assd_val_df, eval_tt_surfdice_val_df,
+            eval_inf_dice_val_df, eval_inf_hd95_val_df, eval_inf_iou_val_df, eval_inf_assd_val_df, eval_inf_surfdice_val_df,
             eval_inf_sensitivity_val_df, eval_inf_specificity_val_df,eval_inf_time_df
         ], axis=1, join='inner').reset_index(drop=True)
         
@@ -348,8 +447,14 @@ def main_worker(args):
         print("\neval result:")
         print('avg tt dice:', avg_tt_dice)
         print('avg tt hd95:', avg_tt_hd95)
+        print('avg tt iou:', avg_tt_iou)
+        print('avg tt assd:', avg_tt_assd)
+        print('avg tt surface dice:', avg_tt_surfdice)
         print('avg inf dice:', avg_inf_dice)
         print('avg inf hd95:', avg_inf_hd95)
+        print('avg inf iou:', avg_inf_iou)
+        print('avg inf assd:', avg_inf_assd)
+        print('avg inf surface dice:', avg_inf_surfdice)
         print('avg inf sensitivity:', avg_inf_sensitivity)
         print('avg inf specificity:', avg_inf_specificity)
         print('avg inf time:', avg_inf_time)
@@ -359,8 +464,14 @@ def main_worker(args):
         tune.report(
             tt_dice=avg_tt_dice,
             tt_hd95=avg_tt_hd95,
+            tt_iou=avg_tt_iou,
+            tt_assd=avg_tt_assd,
+            tt_surfdice=avg_tt_surfdice,
             inf_dice=avg_inf_dice,
             inf_hd95=avg_inf_hd95,
+            inf_iou=avg_inf_iou,
+            inf_assd=avg_inf_assd,
+            inf_surfdice=avg_inf_surfdice,
             val_bst_acc=best_acc,
             inf_time=avg_inf_time
         )
@@ -372,6 +483,7 @@ if __name__ == "__main__":
     
     if args.tune_mode == 'test':
         print('test mode')
+
     elif args.tune_mode == 'train':
         search_space = {
             "exp": tune.grid_search([
@@ -460,8 +572,14 @@ if __name__ == "__main__":
     reporter = CLIReporter(metric_columns=[
         'tt_dice',
         'tt_hd95',
+        'tt_iou',
+        'tt_assd',
+        'tt_surfdice',
         'inf_dice',
         'inf_hd95',
+        'inf_iou',
+        'inf_assd',
+        'inf_surfdice',
         'val_bst_acc',
         'esc',
         'inf_time',
@@ -479,6 +597,7 @@ if __name__ == "__main__":
             result_grid = restored_tuner.get_results()
             best_result = result_grid.get_best_result(metric="inf_dice", mode="max")
             model_pth = os.path.join( best_result.log_dir, 'models', 'best_model.pth')
+
             # test
             # for LinearWarmupCosineAnnealingLR
             args.max_epochs = args.max_epoch
@@ -490,6 +609,7 @@ if __name__ == "__main__":
         else:
             result = restored_tuner.fit()
     else:
+        ray.init(ignore_reinit_error=True, include_dashboard=False) #
         tuner = tune.Tuner(
             trainable_with_cpu_gpu,
             param_space=search_space,

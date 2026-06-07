@@ -69,6 +69,7 @@ def train_epoch(loader, model, optimizer, loss_func, writer, global_step, epoch,
             loss = loss_func(logit_map, y)
         
         loss.backward()
+        #torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
         epoch_loss += loss.item()
         optimizer.step()
         optimizer.zero_grad()
@@ -80,7 +81,7 @@ def train_epoch(loader, model, optimizer, loss_func, writer, global_step, epoch,
         writer.add_scalar("lr", get_lr(optimizer), global_step=global_step)
         writer.add_scalar("tr_loss", loss, global_step=global_step)
         global_step += 1
-    return global_step
+    return global_step, epoch_loss / step #新增
 
 
 def save_checkpoint(filename, model, epoch, best_acc, early_stop_count, args, optimizer=None, scheduler=None):
@@ -124,7 +125,7 @@ def run_training(
         if early_stop_count == args.max_early_stop_count:
             break
 
-        global_step = train_epoch(
+        global_step, train_loss = train_epoch( #新增
             train_loader,
             model,
             optimizer,
@@ -236,6 +237,7 @@ def run_training(
                 tt_hd95=0,
                 val_bst_acc=val_acc_best,
                 esc=early_stop_count,
+                train_loss=train_loss, #新增
             )
             
            

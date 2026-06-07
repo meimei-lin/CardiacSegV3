@@ -15,6 +15,7 @@ from monai.transforms import (
     LabelFilterd,
     MapLabelValued,
     SqueezeDimd,
+    SpatialPadd
 )
 
 
@@ -37,6 +38,10 @@ def get_train_transform(args):
                 b_min=args.b_min, 
                 b_max=args.b_max,
                 clip=True,
+            ),
+            SpatialPadd(  
+                keys=["image", "label"],
+                spatial_size=(args.roi_x, args.roi_y, args.roi_z)
             ),
             RandCropByPosNegLabeld(
                 keys=["image", "label"],

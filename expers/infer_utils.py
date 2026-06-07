@@ -41,6 +41,8 @@ def get_data_path(data_dir, data_name, pid):
     _get_data_dicts = getattr(dataset, 'get_data_dicts', None)
     data_dicts = _get_data_dicts(data_dir)
     pids = get_pids_by_data_dicts(data_dicts)
+    print(pids)
+    print(pid)
     idx = pids.index(pid)
     return data_dicts[idx]
 

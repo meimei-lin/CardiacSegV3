@@ -13,7 +13,14 @@ from networks.testnet.baseline import BASELINE
 from networks.testnet.baseline_rescbam import BASELINE_RESCBAM
 from networks.testnet.baseline_inceptionnext import BASELINE_INCEPTIONNEXT
 from networks.testnet.testnet import TESTNET
-
+from networks.testnet.unetirc_nocbam import UNETIRC_nocbam
+from networks.testnet.unetirc_9 import UNETIRC_9
+from networks.testnet.unetirc_13 import UNETIRC_13
+from networks.uwtnet_3d.uwtnet_3d import UWTNet
+from networks.witnet.witnet import WITNET
+from networks.witnet.inception_resblock import INCEPTION_RESBLOCK
+from networks.witnet.inceptionWT_resblock import INCEPTIONWT_RESBLOCK
+from networks.witnet.inception_resca import INCEPTION_RESCA
 
 def network(model_name, args):
     print(f'model: {model_name}')
@@ -242,8 +249,131 @@ def network(model_name, args):
             deep_sup=args.deep_sup,
             first_feature_size_half=args.first_feature_size_half
           ).to(args.device)
-    
-    
+    elif model_name == 'unetirc_nocbam':
+        return UNETIRC_nocbam(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            patch_size=args.patch_size,
+            kernel_size=args.kernel_size,
+            exp_rate=args.exp_rate,
+            feature_size=args.feature_size,
+            depths=args.depths,
+            drop_path_rate=args.drop_rate,
+            use_init_weights=args.use_init_weights,
+            is_conv_stem=args.is_conv_stem,
+            skip_encoder_name=args.skip_encoder_name,
+            deep_sup=args.deep_sup,
+            first_feature_size_half=args.first_feature_size_half
+          ).to(args.device)
+    elif model_name == 'unetirc_9':
+        return UNETIRC_9(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            patch_size=args.patch_size,
+            kernel_size=args.kernel_size,
+            exp_rate=args.exp_rate,
+            feature_size=args.feature_size,
+            depths=args.depths,
+            drop_path_rate=args.drop_rate,
+            use_init_weights=args.use_init_weights,
+            is_conv_stem=args.is_conv_stem,
+            skip_encoder_name=args.skip_encoder_name,
+            deep_sup=args.deep_sup,
+            first_feature_size_half=args.first_feature_size_half
+          ).to(args.device)
+    elif model_name == 'unetirc_13':
+        return UNETIRC_13(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            patch_size=args.patch_size,
+            kernel_size=args.kernel_size,
+            exp_rate=args.exp_rate,
+            feature_size=args.feature_size,
+            depths=args.depths,
+            drop_path_rate=args.drop_rate,
+            use_init_weights=args.use_init_weights,
+            is_conv_stem=args.is_conv_stem,
+            skip_encoder_name=args.skip_encoder_name,
+            deep_sup=args.deep_sup,
+            first_feature_size_half=args.first_feature_size_half
+          ).to(args.device)
+    elif model_name == 'uwtnet3d':
+        return UWTNet(
+            in_channels=args.in_channels, 
+            out_channels=args.out_channels,
+            wave_level=getattr(args, 'wave_level', 2), 
+            model_size=getattr(args, 'model_size', 'mid'),
+            deep_supervision=False
+        ).to(args.device)
+    # -----------------------------------------------------------------------------------------------------
+    # Proposed WIT-Net (Full Model)
+    # -----------------------------------------------------------------------------------------------------
+    elif model_name == 'witnet':
+        return WITNET(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            patch_size=args.patch_size,
+            kernel_size=args.kernel_size,
+            exp_rate=args.exp_rate,
+            feature_size=args.feature_size,
+            depths=args.depths,
+            drop_path_rate=args.drop_rate,
+            use_init_weights=args.use_init_weights,
+            is_conv_stem=args.is_conv_stem,
+            skip_encoder_name=args.skip_encoder_name,
+            deep_sup=args.deep_sup,
+            first_feature_size_half=args.first_feature_size_half,
+            wave_level=getattr(args, 'wave_level', 1) 
+        ).to(args.device)
+    elif model_name == 'inception_resblock':
+        return INCEPTION_RESBLOCK(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            patch_size=args.patch_size,
+            kernel_size=args.kernel_size,
+            exp_rate=args.exp_rate,
+            feature_size=args.feature_size,
+            depths=args.depths,
+            drop_path_rate=args.drop_rate,
+            use_init_weights=args.use_init_weights,
+            is_conv_stem=args.is_conv_stem,
+            skip_encoder_name=args.skip_encoder_name,
+            deep_sup=args.deep_sup,
+            first_feature_size_half=args.first_feature_size_half
+        ).to(args.device)
+    elif model_name == 'inceptionWT_resblock':
+        return INCEPTIONWT_RESBLOCK(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            patch_size=args.patch_size,
+            kernel_size=args.kernel_size,
+            exp_rate=args.exp_rate,
+            feature_size=args.feature_size,
+            depths=args.depths,
+            drop_path_rate=args.drop_rate,
+            use_init_weights=args.use_init_weights,
+            is_conv_stem=args.is_conv_stem,
+            skip_encoder_name=args.skip_encoder_name,
+            deep_sup=args.deep_sup,
+            first_feature_size_half=args.first_feature_size_half,
+            wave_level=getattr(args, 'wave_level', 1)
+        ).to(args.device)
+    elif model_name == 'inception_resca':
+        return INCEPTION_RESCA(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            patch_size=args.patch_size,
+            kernel_size=args.kernel_size,
+            exp_rate=args.exp_rate,
+            feature_size=args.feature_size,
+            depths=args.depths,
+            drop_path_rate=args.drop_rate,
+            use_init_weights=args.use_init_weights,
+            is_conv_stem=args.is_conv_stem,
+            skip_encoder_name=args.skip_encoder_name,
+            deep_sup=args.deep_sup,
+            first_feature_size_half=args.first_feature_size_half
+        ).to(args.device)
     else:
         raise ValueError(f'not found model name: {model_name}')
 

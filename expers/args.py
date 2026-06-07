@@ -103,7 +103,10 @@ def get_parser(argv):
     parser.add_argument("--sw_batch_size", default=4, type=int, help="number of sliding window batch size")
     parser.add_argument("--infer_overlap", default=0.25, type=float, help="sliding window inference overlap")
     parser.add_argument("--infer_post_process", action="store_true", help="infer post process")
-
+    # ★★★ 新增 UWT-Net 專用參數 ★★★
+    parser.add_argument("--wave_level", type=int, default=2, help="Level of wavelet decomposition")
+    parser.add_argument("--model_size", type=str, default="mid", choices=["small", "mid", "large"], help="Size of UWT-Net")
+    
     
     # get args
     args = parser.parse_args(argv)

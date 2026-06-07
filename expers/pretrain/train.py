@@ -222,9 +222,9 @@ def main():
     parser.add_argument("--max_early_stop_count", default=10, type=int, help="max early stop count")
     parser.add_argument("--best_val", default=1e8, type=float, help="best val")
     
-    # model
+    # model #9/11 change out_channels to 4
     parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
-    parser.add_argument("--out_channels", default=2, type=int, help="number of output channels")
+    parser.add_argument("--out_channels", default=4, type=int, help="number of output channels")
     parser.add_argument("--feature_size", default=48, type=int, help="embedding size")
     parser.add_argument("--patch_size", default=2, type=int, help="embedding size")
     parser.add_argument("--dropout_path_rate", default=0.0, type=float, help="drop path rate")

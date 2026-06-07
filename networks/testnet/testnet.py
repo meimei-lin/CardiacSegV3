@@ -7,9 +7,9 @@ from torchvision.ops.stochastic_depth import StochasticDepth
 from timm.models.layers import trunc_normal_
 
 
-from monai.networks.blocks import UnetrBasicBlock, UnetOutBlock
+from monai.networks.blocks import UnetrBasicBlock, UnetOutBlock , UnetrUpBlock
 
-from .blocks.test_block import UnetrUpBlock
+#from .blocks.test_block import UnetrUpBlock
 from .blocks.inceptionnext_v2 import InceptionNeXtBlock_V2
 from .blocks.utils import LayerNorm
 from .blocks.cbam import CBAM
