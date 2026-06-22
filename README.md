@@ -24,20 +24,15 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 pip install tabulate==0.9.0
 pip install -r requirements.txt
 python setup_dir.py
-
+pip install git+https://github.com/deepmind/surface-distance.git
+pip install PyWavelets
 ```
 
 
-2. For vector optimization
-```
-conda install -y numpy scikit-image
-conda install -y -c anaconda cmake=3.22.1
-conda install -y -c conda-forge ffmpeg
-pip install svgwrite svgpathtools cssutils numba torch-tools scikit-fmm easydict visdom freetype-py shapely ttf save_svg
-pip install opencv-python==4.5.4.60  
-pip install kornia==0.6.8
-pip install wandb
-pip install shapely
+### 2. Dataset deployment
+Cheng Hsin General Hospital Dataset: Place the dataset in .\CardiacSeg\dataset\chgh
+
+Fudan University Dataset: Place the dataset in .\CardiacSeg\dataset\mmwhs
 
 # install diffvg
 git clone https://github.com/BachiLi/diffvg.git
