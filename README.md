@@ -1,4 +1,4 @@
-# Frequency Domain and Spatial Domain Fusion Image Segmentation
+<img width="771" height="175" alt="image" src="https://github.com/user-attachments/assets/375191a9-5c9a-475a-a6cb-cade6f6aed0d" /># Frequency Domain and Spatial Domain Fusion Image Segmentation
 
 <br>
 <div align="center">
@@ -35,9 +35,17 @@ Cheng Hsin General Hospital Dataset: Place the dataset in .\CardiacSeg\dataset\c
 Fudan University Dataset: Place the dataset in .\CardiacSeg\dataset\mmwhs
 
 ### 3. Train
-Open /exps/exp_chgh.ipynb
+Open /exps/exp_chgh.ipynb or /exps/exp_mmwhs_myo.ipynb
 <br>
 <div align="center">
     <img src="image/1.png" width="100%">
+</div>
+<br><br>
+
+
+### 4. Infer
+Open /exps/infer_chgh.ipynb or /exps/infer_mmwhs_myo.ipynb
+<div align="center">
+    <img src="image/2.png" width="100%">
 </div>
 <br><br>
