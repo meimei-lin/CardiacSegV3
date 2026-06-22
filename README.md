@@ -1,4 +1,4 @@
-<img width="771" height="175" alt="image" src="https://github.com/user-attachments/assets/375191a9-5c9a-475a-a6cb-cade6f6aed0d" /># Frequency Domain and Spatial Domain Fusion Image Segmentation
+# Frequency Domain and Spatial Domain Fusion Image Segmentation
 
 <br>
 <div align="center">
