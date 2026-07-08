@@ -17,10 +17,10 @@ from networks.testnet.unetirc_nocbam import UNETIRC_nocbam
 from networks.testnet.unetirc_9 import UNETIRC_9
 from networks.testnet.unetirc_13 import UNETIRC_13
 from networks.uwtnet_3d.uwtnet_3d import UWTNet
-from networks.witnet.witnet import WITNET
-from networks.witnet.inception_resblock import INCEPTION_RESBLOCK
-from networks.witnet.inceptionWT_resblock import INCEPTIONWT_RESBLOCK
-from networks.witnet.inception_resca import INCEPTION_RESCA
+from networks.wicnet.wicnet import WICNET
+from networks.wicnet.inception_resblock import INCEPTION_RESBLOCK
+from networks.wicnet.inceptionWT_resblock import INCEPTIONWT_RESBLOCK
+from networks.wicnet.inception_resca import INCEPTION_RESCA
 
 def network(model_name, args):
     print(f'model: {model_name}')
@@ -306,10 +306,10 @@ def network(model_name, args):
             deep_supervision=False
         ).to(args.device)
     # -----------------------------------------------------------------------------------------------------
-    # Proposed WIT-Net (Full Model)
+    # Proposed WIC-Net (Full Model)
     # -----------------------------------------------------------------------------------------------------
-    elif model_name == 'witnet':
-        return WITNET(
+    elif model_name == 'wicnet':
+        return WICNET(
             in_channels=args.in_channels,
             out_channels=args.out_channels,
             patch_size=args.patch_size,
