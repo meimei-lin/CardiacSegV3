@@ -8,12 +8,12 @@
 
 
 ## Abstract
-Cardiac anatomical structures are highly complex, and the low contrast of computed tomography images makes accurate segmentation of the myocardium and aortic valve a challenging task. Existing U-Net-based architectures often lose high-frequency boundary information during successive downsampling operations. To address this issue, this study proposes WIC-Net, a novel dual-stream architecture that effectively preserves fine anatomical details.
+Cardiac anatomical structures are highly complex, and the low contrast of computed tomography images makes accurate segmentation of the myocardium and aortic valve a challenging task. Existing U-Net-based architectures often lose high-frequency boundary information during successive downsampling operations. To address this issue, this study proposes UNetWIC, a novel dual-stream architecture that effectively preserves fine anatomical details.
 The encoder adopts the InceptionWT block, which consists of two branches. The spatial branch employs InceptionNeXt with large-kernel convolutions to capture global features, while the frequency branch utilizes wavelet convolution to decompose features through discrete wavelet transform and generate frequency-aware attention maps to further enhance spatial features. The decoder integrates a residual coordinate attention block to progressively refine features and accurately guide spatial reconstruction. This strategy not only effectively restores fine anatomical structures but also ensures precise boundary delineation.
-Five-fold cross-validation was conducted on the M-WHS-100 and MM-WHS datasets. Experimental results demonstrate that WIC-Net outperforms existing state-of-the-art models across multiple evaluation metrics, particularly in the segmentation of fine anatomical structures, thereby demonstrating its high segmentation accuracy for clinical applications.
+Five-fold cross-validation was conducted on the M-WHS-100 and MM-WHS datasets. Experimental results demonstrate that UNetWIC outperforms existing state-of-the-art models across multiple evaluation metrics, particularly in the segmentation of fine anatomical structures, thereby demonstrating its high segmentation accuracy for clinical applications.
 
 ## Approach
-We propose **WIC-Net**, a dual-domain fusion network for 3D medical image segmentation. To prevent boundary detail loss during downsampling, we integrate the **InceptionWT** block into the encoder to extract high-frequency wavelet features. Additionally, we incorporate the **ResCA** block into the decoder to enhance 3D spatial coordinate perception.
+We propose **UNetWIC**, a dual-domain fusion network for 3D medical image segmentation. To prevent boundary detail loss during downsampling, we integrate the **InceptionWT** block into the encoder to extract high-frequency wavelet features. Additionally, we incorporate the **ResCA** block into the decoder to enhance 3D spatial coordinate perception.
 
 ## Setup
 ### 1. Create environment
