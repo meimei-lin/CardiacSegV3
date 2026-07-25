@@ -59,6 +59,8 @@ def get_label_names(data_name):
         'mmwhs': ['LV', 'RV', 'LA', 'RA', 'MLV', 'AA', 'PA'],
         'hvsmr': ['M', 'B'],
         'segthor': ['C'],
-        'mmwhs2':['C']
+        'mmwhs2':['C'],
+        'acdc': ['RV', 'MY', 'LV'],
+                 
     }
     return label_names_map[data_name]
