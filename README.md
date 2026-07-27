@@ -72,9 +72,6 @@ Quotation Marks: Parameter values must use double quotes " ".
 ```
 ```bash
 --optim="AdamW" \
-End of Command: The last line MUST NOT have a trailing \ (backslash).
-```bash
-```bash
 --infer_post_process \
 --save_eval_csv
 ```
