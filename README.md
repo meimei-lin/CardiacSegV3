@@ -31,23 +31,107 @@ pip install PyWavelets
 ```
 
 
-### 2. Dataset deployment
-Cheng Hsin General Hospital Dataset: Place the dataset in .\CardiacSeg\dataset\chgh
+### 2. Dataset Configuration
+* Dataset Paths (on A6000)Cheng Hsin General Hospital (CHGH) Dataset:E:\nfs\Workspace\CardiacSegV2\dataset\chgh\aicup_test  
+Fudan University (MMWHS2) Dataset:E:\nfs\Workspace\CardiacSegV2\dataset\mmwhs2\mmwhs_new20  
 
-Fudan University Dataset: Place the dataset in .\CardiacSeg\dataset\mmwhs
+* 5-Fold JSON Dictionaries SetupBefore training, place the configured .json split files into their respective dataset directories:  Path Examples:
+E:\nfs\Workspace\CardiacSegV2\exps\data_dicts\chgh\
+E:\nfs\Workspace\CardiacSegV2\exps\data_dicts\mmwhs2\  
 
-### 3. Train
-Open /exps/exp_chgh.ipynb or /exps/exp_mmwhs_myo.ipynb
-<br>
-<div align="center">
-    <img src="image/1.png" width="100%">
-</div>
-<br><br>
+* JSON Config Example (exp_60_20_20_fold1.json):Each fold needs to specify which records are used for train, val, and test. Enter the relative paths for the CT images and annotations:
+```bash
+{
+  "test": [
+     { "image": "patient0001.nii.gz",
+      "label": "patient0001_gt.nii.gz"
+     },
+    ],
+  "train": [
+      { "image": "patient0041.nii.gz",
+        "label": "patient0041_gt.nii.gz"
+      },
+     ], 
+"val": [
+      { "image": "patient0021.nii.gz",
+        "label": "patient0021_gt.nii.gz"
+      },
+    ]
+}
+```
 
+### 3. Training Notebook Syntax Check (exp_*.ipynb)
+Verify the following in cells like Train UNETCNX, Train TestNet, and Train other models:
 
-### 4. Infer
-Open /exps/infer_chgh.ipynb or /exps/infer_mmwhs_myo.ipynb
-<div align="center">
-    <img src="image/2.png" width="100%">
-</div>
-<br><br>
+Initial Syntax: Must use !set PYTHONPATH.
+
+```bash
+!set PYTHONPATH={workspace_dir} && \
+python {workspace_dir}/expers/tune.py \
+Quotation Marks: Parameter values must use double quotes " ".
+```
+```bash
+--optim="AdamW" \
+End of Command: The last line MUST NOT have a trailing \ (backslash).
+```bash
+```bash
+--infer_post_process \
+--save_eval_csv
+```
+
+### 4. Inference Notebook Syntax Check (infer_*.ipynb)
+
+Python Path Import Fix:
+
+```bash
+# Original: sys.path.append(workspace_dir)
+# Change to:
+sys.path.insert(0, workspace_dir)
+```
+Python Script Execution Fix:
+```bash
+# Original: !/opt/conda/bin/python /nfs/Workspace/.../infer.py \
+# Change to:
+!python {workspace_dir}/expers/infer.py \
+```
+### 5. Model Training
+* Taking the CHGH dataset (exps/exp_chgh.ipynb) as an example:
+
+Open exps/exp_chgh.ipynb and select the Python environment (e.g., CardiacSegV2 or CardiacSegV3).
+
+Run the environment setup cells:
+
+Execute %load_ext autoreload and !nvidia-smi (ensure a green checkmark appears).
+
+Modify parameters in the Setup config cell:
+```bash
+model_name = 'unetwic'          # The model to run (refer to comments)
+exp_name = 'exp_60_20_20_fold1'             # Name for this fold's experiment
+data_dict_file_name = 'exp_60_20_20_fold1.json'  # The JSON split file used for this fold
+```
+Run the corresponding training cell (e.g., Train UNETCNX or Train other models).
+
+[!NOTE]
+
+With batch_size=1 and 9 training cases, it takes approximately 6 to 10 hours to complete on the A6000.
+
+If you want to save these metrics as a .csv file, enable the --save_eval_csv parameter before running.
+
+After running the 5 folds for a model sequentially, you can use Excel to calculate the average and standard deviation.
+
+### 6. Model Inference
+* Taking the CHGH dataset (exps/infer_chgh.ipynb) as an example:
+
+Open exps/infer_chgh.ipynb.
+
+Run the environment setup cells (e.g., !nvidia-smi).
+
+Modify parameters in the Infer configuration cell:
+```bash
+model_name = 'unetwic'            # Model name
+exp_name = 'exp_60_20_20_fold1'            # Experiment name (determines which experiment's weights to use)
+data_dict_file_name = 'exp_60_20_20_fold1.json'
+
+pid = 'patient0001'                     # The specific patient ID to infer
+```
+Run the inference cell (Infer UNETCNX and other). Wait for about 1 minute to get the scores. If you have multiple records, repeat the inference steps, record the data, and calculate the average using Excel.
